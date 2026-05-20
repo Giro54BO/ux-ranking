@@ -65,6 +65,28 @@ function SuccessModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
 // Google Sheets integration
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwDlcZW4OWuDwGQwG0sSbWZLmGiw_ZGHCbrxdMWCwDm8r5l5Ef4YYNVmluXGPyCnNOg/exec";
 
+const normalizeDominio = (value: string): string => {
+  const trimmedValue = value.trim();
+  if (!trimmedValue) return "";
+
+  const valueWithProtocol = /^https?:\/\//i.test(trimmedValue)
+    ? trimmedValue
+    : `https://${trimmedValue}`;
+
+  try {
+    const url = new URL(valueWithProtocol);
+    const hostname = url.hostname.toLowerCase();
+
+    if (!hostname.includes(".") || hostname.startsWith(".") || hostname.endsWith(".")) {
+      return "";
+    }
+
+    return url.toString();
+  } catch {
+    return "";
+  }
+};
+
 export default function App() {
   const [formData, setFormData] = useState({
     telefono: "",
@@ -93,10 +115,8 @@ export default function App() {
       return "El dominio web es requerido";
     }
 
-    // Basic URL validation
-    const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
-    if (!urlPattern.test(value)) {
-      return "Por favor ingresa un dominio válido (ej: https://tutienda.com.py)";
+    if (!normalizeDominio(value)) {
+      return "Por favor ingresa un dominio válido (ej: tutienda.com.py, www.tutienda.com.py o https://www.tutienda.com.py)";
     }
 
     return "";
@@ -126,6 +146,10 @@ export default function App() {
       error = validateTelefono(formData.telefono);
     } else {
       error = validateDominio(formData.dominio);
+      const normalizedDominio = normalizeDominio(formData.dominio);
+      if (normalizedDominio) {
+        setFormData({ ...formData, dominio: normalizedDominio });
+      }
     }
 
     setFormState({
@@ -155,6 +179,7 @@ export default function App() {
     // Validate all fields
     const telefonoError = validateTelefono(formData.telefono);
     const dominioError = validateDominio(formData.dominio);
+    const normalizedDominio = normalizeDominio(formData.dominio);
 
     if (telefonoError || dominioError) {
       setFormState({
@@ -185,7 +210,7 @@ export default function App() {
         },
         body: JSON.stringify({
           telefono: `+595${formData.telefono}`,
-          dominio: formData.dominio,
+          dominio: normalizedDominio,
           fecha: new Date().toISOString()
         })
       });
@@ -356,7 +381,7 @@ export default function App() {
                 <label className="text-[#04071c] text-sm font-['Inter']">Dominio web</label>
                 <input
                   type="text"
-                  placeholder="https://tutienda.com.py"
+                  placeholder="www.tutienda.com.py"
                   value={formData.dominio}
                   onChange={(e) => handleChange("dominio", e.target.value)}
                   onBlur={() => handleBlur("dominio")}
@@ -600,7 +625,7 @@ export default function App() {
                   <label className="text-[#04071c] text-base font-['Inter']">Dominio web</label>
                   <input
                     type="text"
-                    placeholder="https://tutienda.com.py"
+                    placeholder="www.tutienda.com.py"
                     value={formData.dominio}
                     onChange={(e) => handleChange("dominio", e.target.value)}
                     onBlur={() => handleBlur("dominio")}

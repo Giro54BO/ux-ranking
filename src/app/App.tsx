@@ -542,9 +542,7 @@ export default function App() {
           {/* Columna izquierda - Título y Beneficios */}
           <div>
             <h3 className="text-white text-3xl md:text-5xl lg:text-[64px] font-['Barlow'] leading-tight md:leading-[64px] tracking-tight md:tracking-[-2.56px] max-w-full md:max-w-[616px] mb-8 md:mb-12">¿Por qué participar?</h3>
-            <div className="max-w-[616px]">
-              <img src={imgBeneficios} alt="Beneficios" className="w-full h-auto" />
-            </div>
+            {/* The image 3_Beneficios.svg was removed as per user request. It is kept in the section with Usuaria.png */}
           </div>
 
           {/* Columna derecha - Cuerpo */}
